@@ -1,10 +1,11 @@
 import streamlit as st
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=openai_api_key)
 import os
 
 # Set up your OpenAI API key securely
 openai_api_key = os.getenv('OPENAI_API_KEY')
-openai.api_key = openai_api_key
 
 def create_network_diagram(devices, connections):
     # Building a detailed prompt
@@ -17,11 +18,9 @@ def create_network_diagram(devices, connections):
     prompt += "The diagram should reflect network engineering standards."
 
     try:
-        response = openai.Completion.create(
-            engine="text-davinci-002",
-            prompt=prompt,
-            max_tokens=250
-        )
+        response = client.completions.create(engine="text-davinci-002",
+        prompt=prompt,
+        max_tokens=250)
         return response.choices[0].text.strip()
     except Exception as e:
         return str(e)
