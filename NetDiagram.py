@@ -1,10 +1,8 @@
 import streamlit as st
 from openai import OpenAI
-
-client = OpenAI(api_key=openai_api_key)
 import os
 
-# Set up your OpenAI API key securely
+client = OpenAI(api_key=openai_api_key)
 openai_api_key = os.getenv('OPENAI_API_KEY')
 
 def create_network_diagram(devices, connections):
