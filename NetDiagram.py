@@ -2,7 +2,7 @@ import streamlit as st
 from openai import OpenAI
 import os
 
-`os.environ(``OPENAI_API_KEY'') = `sk-proj-6Ub8YjZensEeQph4EMdrT3BlbkFJ8tPqbnIFuGgcahAg5h52''
+openai.api_key = st.secrets.openai_key
 
 def create_network_diagram(devices, connections):
     # Building a detailed prompt
