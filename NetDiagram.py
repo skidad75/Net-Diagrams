@@ -3,7 +3,7 @@ from openai import OpenAI
 import os
 
 OpenAI.api_key = st.secrets.openai_key
-client = OpenAI()
+client = OpenAI(OpenAI.api_key)
 
 def create_network_diagram(devices, connections):
     # Building a detailed prompt
