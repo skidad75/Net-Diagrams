@@ -26,7 +26,7 @@ def create_network_diagram(devices, connections):
         "max_tokens": 250
     }
 
-    response = requests.post("https://api.openai.com/v1/completions", headers=headers, json=data)
+    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
     
     try:
         response_data = response.json()
