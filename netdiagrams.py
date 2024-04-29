@@ -4,7 +4,6 @@ import os
 import json
 
 # Set up your OpenAI API key securely
-client = openai.OpenAI()
 OpenAI.api_key = st.secrets.openai_key
 
 def create_network_diagram(devices, connections):
