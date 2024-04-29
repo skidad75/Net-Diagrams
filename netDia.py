@@ -16,10 +16,10 @@ def create_network_diagram(devices, connections):
     prompt += "The diagram should reflect network engineering standards."
 
     try:
-        response = openai.Completion.create(
+        response = openai.completions.create(
             engine="text-davinci-002",
-            prompt=prompt,
-            max_tokens=250
+            prompt=content,
+            max_tokens=25000
         )
         return response.choices[0].text.strip()
     except Exception as e:
