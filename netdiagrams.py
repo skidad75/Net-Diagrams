@@ -21,9 +21,9 @@ def create_network_diagram(devices, connections):
         "Content-Type": "application/json"
     }
     data = {
-        "model": "text-davinci-002",
+        "model": "gpt-3.5-turbo",
         "prompt": prompt,
-        "max_tokens": 250
+        "max_tokens": 25000
     }
 
     response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
