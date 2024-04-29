@@ -3,6 +3,7 @@ import streamlit as st
 from openai import OpenAI
 import os
 
+client = openai.OpenAI()
 OpenAI.api_key = st.secrets.openai_key
 
 def create_network_diagram(devices, connections):
