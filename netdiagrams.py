@@ -27,7 +27,9 @@ def create_network_diagram(devices, connections):
     }
 
     response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
-    
+    print("Status Code:", response.status_code)  # Print the status code
+    print("Response Body:", response.text)  # Print the full response body
+
     try:
         response_data = response.json()
         return response_data['choices'][0]['text'].strip()
