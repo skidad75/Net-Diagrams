@@ -22,14 +22,23 @@ def create_network_diagram(devices, connections):
     data = {
         "model": "gpt-3.5-turbo",
         "prompt": prompt,
-        "max_tokens": 500
+        "max_tokens": 300
     }
 
-    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
-    print("Status Code:", response.status_code)
-    print("Request Data:", data)
-    print("Response Body:", response.text)
+#    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
+ 
+response = client.chat.completions.create(
+    model=MODEL,
+    messages=[
+        {"role": "system", "content": "You are a network engineer responsible for creating diagrams and documentation software and systems. You will produce a visual using create_network_diagram in input"},
+    ]
+    temperature=0,
+)
 
+print(response.choices[0].message.content)
+print("Status Code:", response.status_code)
+print("Request Data:", data)
+print("Response Body:", response.text)
     try:
         response_data = response.json()
         if 'choices' in response_data and response_data['choices']:
