@@ -40,6 +40,7 @@ print("Status Code:", response.status_code)
 print("Request Data:", data)
 print("Response Body:", response.text)
 
+def (foo)
     try:
         response_data = response.json()
         if 'choices' in response_data and response_data['choices']:
