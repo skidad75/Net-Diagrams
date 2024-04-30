@@ -40,7 +40,7 @@ def create_network_diagram(devices, connections):
     except Exception as e:
         return f"Failed to generate diagram: {str(e)}"
 
- Streamlit interface
+ #Streamlit interface
 st.title('Network Diagram Generator')
 
 st.subheader('Devices')
