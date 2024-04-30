@@ -41,7 +41,7 @@ print("Request Data:", data)
 print("Response Body:", response.text)
 
 try:
-response_data = response.json()
+    response_data = response.json()
     if 'choices' in response_data and response_data['choices']:
         return response_data['choices'][0]['text'].strip()
     else:
