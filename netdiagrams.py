@@ -29,7 +29,7 @@ def create_network_diagram(devices, connections):
  
 response = client.chat.completions.create(
     model=MODEL,
-    messages=[
+    messages=[,
         {"role": "system", "content": "You are a network engineer responsible for creating diagrams and documentation software and systems. You will produce a visual using create_network_diagram in input"},
     ]
     temperature=0,
