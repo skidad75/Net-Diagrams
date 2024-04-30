@@ -39,15 +39,16 @@ print(response.choices[0].message.content)
 print("Status Code:", response.status_code)
 print("Request Data:", data)
 print("Response Body:", response.text)
-    try:
-        response_data = response.json()
-        if 'choices' in response_data and response_data['choices']:
-            return response_data['choices'][0]['text'].strip()
-        else:
-            return "Failed to generate diagram: API did not return 'choices'."
+try:
+    response_data = response.json()
+    if 'choices' in response_data and response_data['choices']:
+        return response_data['choices'][0]['text'].strip()
+    else:
+        return "Failed to generate diagram: API did not return 'choices'."
     except Exception as e:
         return f"Failed to generate diagram: {str(e)}"
- #Streamlit interface
+
+#Streamlit interface
 st.title('Network Diagram Generator')
 
 st.subheader('Devices')
