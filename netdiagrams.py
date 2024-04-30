@@ -45,8 +45,8 @@ try:
         return response_data['choices'][0]['text'].strip()
     else:
         return "Failed to generate diagram: API did not return 'choices'."
-    except Exception as e:
-        return f"Failed to generate diagram: {str(e)}"
+except Exception as e:
+    return f"Failed to generate diagram: {str(e)}"
 
 #Streamlit interface
 st.title('Network Diagram Generator')
