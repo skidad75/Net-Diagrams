@@ -5,6 +5,7 @@ import json
 
 # Set up your OpenAI API key securely
 openai_api_key = st.secrets.openai_key
+response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
 
 def create_network_diagram(devices, connections):
     prompt = "Generate a network diagram that includes the following devices and connections:\n"
@@ -25,7 +26,6 @@ def create_network_diagram(devices, connections):
         "max_tokens": 300
     }
 
-#    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
     try:
         response_data = response.json()
         if 'choices' in response_data and response_data['choices']:
