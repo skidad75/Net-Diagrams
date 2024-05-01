@@ -43,7 +43,7 @@ def create_network_diagram(devices, connections):
         temperature=0,
         )
 
-print(response.choices[0].message.content)
+print(response)
 print("Status Code:", response.status_code)
 print("Request Data:", data)
 print("Response Body:", response.text)
