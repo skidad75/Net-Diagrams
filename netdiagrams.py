@@ -45,7 +45,6 @@ def create_network_diagram(devices, connections):
 
 print(response)
 print("Status Code:", response.status_code)
-print("Request Data:", data)
 print("Response Body:", response.text)
 
 #Streamlit interface
