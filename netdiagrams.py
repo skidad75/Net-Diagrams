@@ -5,7 +5,7 @@ import json
 
 # Set up your OpenAI API key securely
 openai_api_key = st.secrets.openai_key
-response = requests.post("https://api.openai.com/v1/chat/completions", json=data)
+response = requests.post("https://api.openai.com/v1/chat/completions")
 
 def create_network_diagram(devices, connections):
     prompt = "Generate a network diagram that includes the following devices and connections:\n"
