@@ -30,7 +30,7 @@ def create_network_diagram(devices, connections):
             prompt=prompt,
             max_tokens=150
             )
-    if len(response_data['choices'][0]['text'].strip()) == 0:
+    if response_data['choices'][0]['text'].strip() != None:
         print(response_data.choices[0].message.content)
     else:
             return "Failed to generate diagram: API did not return 'choices'."
