@@ -11,14 +11,6 @@ headers = {
         "Content-Type": "application/json"
         }
 
-
-response = client.chat.completions.create(
-  model="gpt-3.5-turbo-0125",
-  response_format={"type":"json_object"},
-  messages=[
-    {"role": "system", "content": "You are a helpful assistant and network engineering expert. You help to produce helpful diagrams based on the input provided."},
-  ]
-)
 # Function to create a network diagram
 def create_network_diagram(devices, connections):
     # Constructing the prompt for the network diagram
@@ -33,7 +25,10 @@ def create_network_diagram(devices, connections):
    
     # Sending the request to OpenAI API
     try:
-        response_data = response.json()
+        response_data = client.chat.completions.create(
+            model="gpt3.5-turbo-0125",
+            response_format={"type": "json_object" },
+            messages=response.choices[0]
         if 'choices' in response_data and response_data['choices']:
             print(response.choices[0].message.content)
         else:
