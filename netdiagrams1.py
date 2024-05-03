@@ -28,7 +28,7 @@ def create_network_diagram(devices, connections):
         response_data = client.chat.completions.create(
             model="gpt3.5-turbo-0125",
             response_format={"type": "json_object" },
-            messages=response.choices[0]
+            messages=response.choices[0])
         if 'choices' in response_data and response_data['choices']:
             print(response.choices[0].message.content)
         else:
