@@ -10,7 +10,9 @@ headers = {
         "Authorization": f"Bearer {openai_api_key}",
         "Content-Type": "application/json"
         }
-response = client.chat.completions.create(
+
+
+response = client.c
   model="gpt-3.5-turbo-0125",
   response_format={"type":"json_object"},
   messages=[
