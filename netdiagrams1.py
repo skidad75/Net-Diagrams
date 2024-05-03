@@ -25,12 +25,13 @@ def create_network_diagram(devices, connections):
    
     # Sending the request to OpenAI API
     try:
-        response_data = client.chat.completions.create(
-            model="gpt3.5-turbo-0125",
-            response_format={"type": "json_object" },
-            messages=response.choices[0])
-        if 'choices' in response_data and response_data['choices']:
-            print(response.choices[0].message.content)
+        response_data = openai.Completions.create(
+            engine="text-davinci-003",
+            prompt=prompt,
+            max_tokens=150
+            )
+        if response_data['choices'][0]['text'].strip()
+            print(response_data.choices[0].message.content)
         else:
             return "Failed to generate diagram: API did not return 'choices'."
     except Exception as e:
