@@ -1,0 +1,15 @@
+name: netdiagrams
+channels:
+- anaconda
+- conda-forge
+- defaults
+dependencies:
+  - python
+  - pip:
+    - streamlit
+    - streamlit_extras
+    - openai
+    - llama-index
+    - llama-index-llms-openai
+    - nltk
+    - pypdf
