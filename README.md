@@ -1,1 +1,1 @@
-This is a RAG based AI chatbot that uses tha llama index
+This is an automated network diagram generator
