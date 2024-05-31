@@ -21,7 +21,7 @@ def create_network_diagram(devices, connections):
         "Content-Type": "application/json"
     }
     data = {
-        "model": "gpt-3.5-turbo",
+        "model": "gpt-4o",
         "prompt": prompt,
         "max_tokens": 300
     }
@@ -84,4 +84,4 @@ if st.button('Generate Network Diagram'):
         st.text("Here is your network diagram code:")
         st.code(result)
     else:
-        st.warning("Please add devices and connections to generate the diagram.")
+        st.warning("Please add devices and connections to generate the diagrams.")
