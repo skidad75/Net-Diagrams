@@ -4,7 +4,8 @@ import requests
 import os
 import json
 import openai
-from openai import OpenAI
+
+st.set_page_config(page_title="NetDiagram engineering diagrams", layout="centered", initial_sidebar_state="auto", menu_items=None)
 
 # Set up your OpenAI API key securely
 openai_api_key = st.secrets.openai_key
@@ -12,7 +13,7 @@ client = OpenAI(openai_api_key)
 
 response = client.chat.completions.create(
     model="gpt-4o",
-    response_format={ "type": "json_object" },
+    response_format={ "type": "system", "json_object" },
     messages=[
         {"role": "system", "content": "You are a helpful assistant designed to output JSON diagrams and are a network engineer responsible for creating diagrams and documentation software and systems. You will output a visual diagram based on the JSON input."}
     ]
@@ -34,7 +35,8 @@ def create_network_diagram(devices, connections):
     }
 
     try:
-        response_data = response.json()
+        index = load_data(create_network_diagram)
+        response_data = response.json(client)
         if 'choices' in response_data and response_data['choices']:
             return response_data['choices'][0]['text'].strip()
         else:
