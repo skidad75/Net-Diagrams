@@ -43,9 +43,8 @@ def create_network_diagram(devices, connections):
         temperature=0,
         )
 
-print(response_data)
 print("Status Code:", response.status_code)
-print("Response Body:", response.text)
+print("Response Body:", response.response_data)
 
 #Streamlit interface
 st.title('Network Diagram Generator')
