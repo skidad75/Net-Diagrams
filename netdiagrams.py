@@ -13,7 +13,7 @@ client = OpenAI(openai_api_key)
 
 response = client.chat.completions.create(
     model="gpt-4o",
-    response_format={ "type": "system", "json_object" },
+    response_format={ "type": "system"},
     messages=[
         {"role": "system", "content": "You are a helpful assistant designed to output JSON diagrams and are a network engineer responsible for creating diagrams and documentation software and systems. You will output a visual diagram based on the JSON input."}
     ]
