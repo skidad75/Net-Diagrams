@@ -1,7 +1,9 @@
 import streamlit as st
+import streamlit_extras
 import requests
 import os
 import json
+import openai
 from openai import OpenAI
 
 # Set up your OpenAI API key securely
@@ -45,8 +47,7 @@ print("Status Code:", response.status_code)
 print("Response Body:", response.response_data)
 
 #Streamlit interface
-st.title('Network Diagram Generator')
-
+st.title('Network Diagram Generator 🤖 ")
 st.subheader('Devices')
 num_devices = st.number_input('How many devices?', min_value=0, value=1, step=1)
 devices = []
