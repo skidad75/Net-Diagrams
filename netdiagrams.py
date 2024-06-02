@@ -49,7 +49,7 @@ print("Status Code:", response.status_code)
 print("Response Body:", response.response_data)
 
 #Streamlit interface
-st.title('Network Diagram Generator 🤖 ")
+st.title("Network Diagram Generator 🤖 ")
 st.subheader('Devices')
 num_devices = st.number_input('How many devices?', min_value=0, value=1, step=1)
 devices = []
