@@ -12,9 +12,10 @@ response = client.chat.completions.create(
     model="gpt-4o",
     response_format={ "type": "json_object" },
     messages=[
-        {"role": "system", "content": "You are a helpful assistant designed to output JSON diagrams and are a network engineer responsible for creating diagrams and documentation software and systems. You will output a visual diagram based on the JSON input.}
+        {"role": "system", "content": "You are a helpful assistant designed to output JSON diagrams and are a network engineer responsible for creating diagrams and documentation software and systems. You will output a visual diagram based on the JSON input."}
     ]
 )
+
 
 def create_network_diagram(devices, connections):
     prompt = "Generate a network diagram that includes the following devices and connections:\n"
