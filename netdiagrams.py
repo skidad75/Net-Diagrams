@@ -3,10 +3,10 @@ import requests
 import os
 import json
 from openai import OpenAI
-client = OpenAI()
 
 # Set up your OpenAI API key securely
 openai_api_key = st.secrets.openai_key
+client = OpenAI(openai_api_key)
 
 response = client.chat.completions.create(
     model="gpt-4o",
