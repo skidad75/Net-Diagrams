@@ -2,10 +2,20 @@ import streamlit as st
 import requests
 import os
 import json
+from openai import OpenAI
+client = OpenAI()
 
 # Set up your OpenAI API key securely
 openai_api_key = st.secrets.openai_key
-response = requests.post("https://api.openai.com/v1/chat/completions")
+
+response = client.chat.completions.create(
+    model="gpt-4o",
+    response_format={ "type": "json_object" },
+    messages=[
+    {"role": "system", "content": "You are a network engineer responsible for creating diagrams and documentation software and systems.},
+    {"You are a helpful assistant designed to output JSON."}
+  ]
+)
 
 def create_network_diagram(devices, connections):
     prompt = "Generate a network diagram that includes the following devices and connections:\n"
@@ -20,11 +30,6 @@ def create_network_diagram(devices, connections):
         "Authorization": f"Bearer {openai_api_key}",
         "Content-Type": "application/json"
     }
-    data = {
-        "model": "gpt-4o",
-        "prompt": prompt,
-        "max_tokens": 300
-    }
 
     try:
         response_data = response.json()
@@ -35,13 +40,6 @@ def create_network_diagram(devices, connections):
     except Exception as e:
         return f"Failed to generate diagram: {str(e)}"
 
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=[
-        {"role": "system", "content": "You are a network engineer responsible for creating diagrams and documentation software and systems. You will produce a visual using create_network_diagram in input"},
-        ],
-        temperature=0,
-        )
 
 print("Status Code:", response.status_code)
 print("Response Body:", response.response_data)
