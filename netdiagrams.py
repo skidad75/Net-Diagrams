@@ -2,13 +2,13 @@ import streamlit as st
 import requests
 import os
 import json
-import openai
+import openai as oai
 
 st.set_page_config(page_title="NetDiagram engineering diagrams", layout="centered", initial_sidebar_state="auto", menu_items=None)
 
 # Set up your OpenAI API key securely
 openai_api_key = st.secrets.openai_key
-client = openai(openai_api_key)
+client = oai(openai_api_key)
 
 response = client.chat.completions.create(
     model="gpt-4o",
