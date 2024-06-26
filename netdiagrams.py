@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit_extras
 import requests
 import os
 import json
