@@ -8,7 +8,7 @@ st.set_page_config(page_title="NetDiagram engineering diagrams", layout="centere
 
 # Set up your OpenAI API key securely
 openai_api_key = st.secrets.openai_key
-client = OpenAI(openai_api_key)
+client = openai(openai_api_key)
 
 response = client.chat.completions.create(
     model="gpt-4o",
