@@ -7,7 +7,6 @@ dependencies:
   - python
   - pip:
     - streamlit
-    - streamlit_extras
     - openai
     - llama-index
     - llama-index-llms-openai
