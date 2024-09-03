@@ -1,6 +1,9 @@
 streamlit 
+Pillow
 openai
 llama-index
 llama-index-llms-openai
 nltk
 pypdf
+networkx
+matplotlib
