@@ -10,11 +10,10 @@ if 'network_devices' not in st.session_state:
 if 'network_connections' not in st.session_state:
     st.session_state.network_connections = []
 
-# Set up OpenAI API key securely (if needed)
-# openai.api_key = st.secrets["openai_key"]
+if 'network_boundaries' not in st.session_state:
+    st.session_state.network_boundaries = []
 
-def create_network_diagram(network_devices, network_connections):
-    # Create a new graph
+def create_network_diagram(network_devices, network_connections, network_boundaries):
     G = nx.Graph()
 
     # Add nodes (devices)
@@ -23,13 +22,12 @@ def create_network_diagram(network_devices, network_connections):
 
     # Add edges (connections)
     for conn in network_connections:
-        G.add_edge(conn['from'], conn['to'], port=conn['port'], protocol=conn['protocol'], encryption=conn['encryption'])
+        G.add_edge(conn['from'], conn['to'], port=conn['port'], protocol=conn['protocol'])
 
     # Create a layout for our nodes 
     pos = nx.spring_layout(G)
 
-    # Create a new figure
-    fig, ax = plt.subplots(figsize=(12, 8))
+    fig, ax = plt.subplots(figsize=(15, 10))
 
     # Draw the graph
     nx.draw(G, pos, with_labels=True, node_color='lightblue', node_size=3000, font_size=8, font_weight='bold')
@@ -38,55 +36,45 @@ def create_network_diagram(network_devices, network_connections):
     edge_labels = nx.get_edge_attributes(G, 'port')
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
 
-    # Add a title
-    plt.title("Network Diagram", fontsize=16)
+    # Draw boundaries
+    for boundary in network_boundaries:
+        devices_in_boundary = [d['name'] for d in network_devices if d['boundary'] == boundary['name']]
+        if devices_in_boundary:
+            boundary_pos = [pos[device] for device in devices_in_boundary]
+            x_coords, y_coords = zip(*boundary_pos)
+            ax.add_patch(plt.Polygon(list(zip(x_coords, y_coords)), closed=True, fill=False, edgecolor='r', linestyle='--'))
+            plt.text(sum(x_coords)/len(x_coords), max(y_coords), boundary['name'], fontsize=12, color='r')
 
+    plt.title("Azure Infrastructure Diagram", fontsize=16)
     return fig
 
-# Update the page config and add custom CSS
-st.set_page_config(page_title="NetDiagram Engineering Diagrams", layout="wide", initial_sidebar_state="auto", menu_items=None)
+st.set_page_config(page_title="Azure Infrastructure Diagram Generator", layout="wide", initial_sidebar_state="auto", menu_items=None)
 
 st.markdown("""
     <style>
-    .main {
-        background-color: #f0f2f6;
-    }
-    .stApp {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-    .stButton>button {
-        background-color: #0066cc;
-        color: white;
-    }
-    .stTextInput>div>div>input, .stSelectbox>div>div>select {
-        background-color: white;
-    }
-    h1, h2, h3 {
-        color: #333;
-    }
-    .stAlert {
-        background-color: #e6f2ff;
-        color: #0066cc;
-        border: 1px solid #0066cc;
-        border-radius: 4px;
-    }
+    .main { background-color: #f0f2f6; }
+    .stApp { max-width: 1200px; margin: 0 auto; }
+    .stButton>button { background-color: #0066cc; color: white; }
+    .stTextInput>div>div>input, .stSelectbox>div>div>select { background-color: white; }
+    h1, h2, h3 { color: #333; }
+    .stAlert { background-color: #e6f2ff; color: #0066cc; border: 1px solid #0066cc; border-radius: 4px; }
     </style>
     """, unsafe_allow_html=True)
 
-st.title("Network Diagram Generator 🖧")
+st.title("Azure Infrastructure Diagram Generator 🖧")
 
-# Create two columns for the forms
-col1, col2 = st.columns(2)
+# Create three columns for the forms
+col1, col2, col3 = st.columns(3)
 
 # Add device form
 with col1:
     st.subheader("Add Device")
     with st.form(key='add_device_form'):
-        device_type = st.text_input("Device Type")
+        device_type = st.selectbox("Device Type", ["VM", "Server", "Workstation", "Network Device", "Cloud Service"])
         device_name = st.text_input("Device Name")
+        boundary = st.selectbox("Boundary", [""] + [b['name'] for b in st.session_state.network_boundaries])
         if st.form_submit_button("Add Device"):
-            st.session_state.network_devices.append({"type": device_type, "name": device_name})
+            st.session_state.network_devices.append({"type": device_type, "name": device_name, "boundary": boundary})
             st.success(f"Added {device_type} named {device_name}")
 
 # Add connection form
@@ -96,35 +84,47 @@ with col2:
         from_device = st.selectbox("From Device", [d['name'] for d in st.session_state.network_devices])
         to_device = st.selectbox("To Device", [d['name'] for d in st.session_state.network_devices])
         port = st.text_input("Port")
-        protocol = st.text_input("Protocol")
-        encryption = st.text_input("Encryption")
+        protocol = st.selectbox("Protocol", ["TCP", "UDP", "HTTPS", "Custom"])
         if st.form_submit_button("Add Connection"):
             st.session_state.network_connections.append({
                 "from": from_device,
                 "to": to_device,
                 "port": port,
-                "protocol": protocol,
-                "encryption": encryption
+                "protocol": protocol
             })
             st.success(f"Added connection from {from_device} to {to_device}")
 
-# Display current devices and connections
-col3, col4 = st.columns(2)
-
+# Add boundary form
 with col3:
-    st.subheader("Current Devices")
-    for device in st.session_state.network_devices:
-        st.write(f"• {device['type']} - {device['name']}")
+    st.subheader("Add Boundary")
+    with st.form(key='add_boundary_form'):
+        boundary_name = st.text_input("Boundary Name")
+        if st.form_submit_button("Add Boundary"):
+            st.session_state.network_boundaries.append({"name": boundary_name})
+            st.success(f"Added boundary {boundary_name}")
+
+# Display current devices, connections, and boundaries
+col4, col5, col6 = st.columns(3)
 
 with col4:
+    st.subheader("Current Devices")
+    for device in st.session_state.network_devices:
+        st.write(f"• {device['type']} - {device['name']} ({device['boundary']})")
+
+with col5:
     st.subheader("Current Connections")
     for conn in st.session_state.network_connections:
-        st.write(f"• {conn['from']} to {conn['to']} using port {conn['port']} over {conn['protocol']} with {conn['encryption']} encryption")
+        st.write(f"• {conn['from']} to {conn['to']} using port {conn['port']} over {conn['protocol']}")
+
+with col6:
+    st.subheader("Current Boundaries")
+    for boundary in st.session_state.network_boundaries:
+        st.write(f"• {boundary['name']}")
 
 # Generate diagram button
-if st.button('Generate Network Diagram', key='generate_button'):
+if st.button('Generate Azure Infrastructure Diagram', key='generate_button'):
     if st.session_state.network_devices and st.session_state.network_connections:
-        fig = create_network_diagram(st.session_state.network_devices, st.session_state.network_connections)
+        fig = create_network_diagram(st.session_state.network_devices, st.session_state.network_connections, st.session_state.network_boundaries)
         
         # Display the diagram
         st.pyplot(fig)
@@ -134,11 +134,11 @@ if st.button('Generate Network Diagram', key='generate_button'):
         fig.savefig(pdf_buffer, format='pdf', bbox_inches='tight')
         pdf_buffer.seek(0)
         
-        # Add print button for PDF export
+        # Add download button for PDF export
         st.download_button(
-            label="Download Network Diagram (PDF)",
+            label="Download Azure Infrastructure Diagram (PDF)",
             data=pdf_buffer,
-            file_name="network_diagram.pdf",
+            file_name="azure_infrastructure_diagram.pdf",
             mime="application/pdf"
         )
     else:
