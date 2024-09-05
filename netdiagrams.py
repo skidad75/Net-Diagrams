@@ -3,6 +3,13 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import io
 
+# Initialize session state variables
+if 'network_devices' not in st.session_state:
+    st.session_state.network_devices = []
+
+if 'network_connections' not in st.session_state:
+    st.session_state.network_connections = []
+
 # Set up OpenAI API key securely (if needed)
 # openai.api_key = st.secrets["openai_key"]
 
