@@ -36,52 +36,86 @@ def create_network_diagram(network_devices, network_connections):
 
     return fig
 
-# Streamlit interface
-st.set_page_config(page_title="NetDiagram Engineering Diagrams", layout="centered", initial_sidebar_state="auto", menu_items=None)
-st.title("Network Diagram Generator 🤖")
+# Update the page config and add custom CSS
+st.set_page_config(page_title="NetDiagram Engineering Diagrams", layout="wide", initial_sidebar_state="auto", menu_items=None)
 
-# Initialize session state for devices and connections
-if 'network_devices' not in st.session_state:
-    st.session_state.network_devices = []
-if 'network_connections' not in st.session_state:
-    st.session_state.network_connections = []
+st.markdown("""
+    <style>
+    .main {
+        background-color: #f0f2f6;
+    }
+    .stApp {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .stButton>button {
+        background-color: #0066cc;
+        color: white;
+    }
+    .stTextInput>div>div>input, .stSelectbox>div>div>select {
+        background-color: white;
+    }
+    h1, h2, h3 {
+        color: #333;
+    }
+    .stAlert {
+        background-color: #e6f2ff;
+        color: #0066cc;
+        border: 1px solid #0066cc;
+        border-radius: 4px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+st.title("Network Diagram Generator 🖧")
+
+# Create two columns for the forms
+col1, col2 = st.columns(2)
 
 # Add device form
-with st.form(key='add_device_form'):
-    device_type = st.text_input("Device Type")
-    device_name = st.text_input("Device Name")
-    if st.form_submit_button("Add Device"):
-        st.session_state.network_devices.append({"type": device_type, "name": device_name})
-        st.success(f"Added {device_type} named {device_name}")
+with col1:
+    st.subheader("Add Device")
+    with st.form(key='add_device_form'):
+        device_type = st.text_input("Device Type")
+        device_name = st.text_input("Device Name")
+        if st.form_submit_button("Add Device"):
+            st.session_state.network_devices.append({"type": device_type, "name": device_name})
+            st.success(f"Added {device_type} named {device_name}")
 
 # Add connection form
-with st.form(key='add_connection_form'):
-    from_device = st.selectbox("From Device", [d['name'] for d in st.session_state.network_devices])
-    to_device = st.selectbox("To Device", [d['name'] for d in st.session_state.network_devices])
-    port = st.text_input("Port")
-    protocol = st.text_input("Protocol")
-    encryption = st.text_input("Encryption")
-    if st.form_submit_button("Add Connection"):
-        st.session_state.network_connections.append({
-            "from": from_device,
-            "to": to_device,
-            "port": port,
-            "protocol": protocol,
-            "encryption": encryption
-        })
-        st.success(f"Added connection from {from_device} to {to_device}")
+with col2:
+    st.subheader("Add Connection")
+    with st.form(key='add_connection_form'):
+        from_device = st.selectbox("From Device", [d['name'] for d in st.session_state.network_devices])
+        to_device = st.selectbox("To Device", [d['name'] for d in st.session_state.network_devices])
+        port = st.text_input("Port")
+        protocol = st.text_input("Protocol")
+        encryption = st.text_input("Encryption")
+        if st.form_submit_button("Add Connection"):
+            st.session_state.network_connections.append({
+                "from": from_device,
+                "to": to_device,
+                "port": port,
+                "protocol": protocol,
+                "encryption": encryption
+            })
+            st.success(f"Added connection from {from_device} to {to_device}")
 
 # Display current devices and connections
-st.subheader("Current Devices")
-for device in st.session_state.network_devices:
-    st.write(f"{device['type']} - {device['name']}")
+col3, col4 = st.columns(2)
 
-st.subheader("Current Connections")
-for conn in st.session_state.network_connections:
-    st.write(f"{conn['from']} to {conn['to']} using port {conn['port']} over {conn['protocol']} with {conn['encryption']} encryption")
+with col3:
+    st.subheader("Current Devices")
+    for device in st.session_state.network_devices:
+        st.write(f"• {device['type']} - {device['name']}")
+
+with col4:
+    st.subheader("Current Connections")
+    for conn in st.session_state.network_connections:
+        st.write(f"• {conn['from']} to {conn['to']} using port {conn['port']} over {conn['protocol']} with {conn['encryption']} encryption")
 
 # Generate diagram button
-if st.button('Generate Network Diagram'):
+if st.button('Generate Network Diagram', key='generate_button'):
     if st.session_state.network_devices and st.session_state.network_connections:
         fig = create_network_diagram(st.session_state.network_devices, st.session_state.network_connections)
         
@@ -95,7 +129,7 @@ if st.button('Generate Network Diagram'):
         
         # Add print button for PDF export
         st.download_button(
-            label="Print Network Diagram (PDF)",
+            label="Download Network Diagram (PDF)",
             data=pdf_buffer,
             file_name="network_diagram.pdf",
             mime="application/pdf"
