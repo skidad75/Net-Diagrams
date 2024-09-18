@@ -44,6 +44,14 @@ We welcome contributions! If you have ideas for improvements or have found a bug
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## ☕ Support the Project
+
+If you find this tool useful and want to support its development, consider buying me a coffee!
+
+[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/skidad75)
+
+Your support helps keep this project alive and growing!
+
 ## 🙏 Acknowledgements
 
 A big thank you to all the open-source libraries that made this project possible, and to the amazing Streamlit team for their fantastic platform!
