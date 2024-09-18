@@ -1,6 +1,7 @@
 import streamlit as st
 import networkx as nx
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import io
 
 # Initialize session state variables
@@ -19,48 +20,71 @@ DEVICE_ICONS = {
     "Server": "🖥️",
     "Workstation": "🖱️",
     "Network Device": "🌐",
-    "Cloud Service": "☁️"
+    "Cloud Service": "☁️",
+    "Firewall": "🛡️",
+    "Router": "📡"
 }
 
 def create_network_diagram(network_devices, network_connections, network_boundaries):
     G = nx.Graph()
+    fig, ax = plt.subplots(figsize=(15, 10))
 
-    # Add nodes (devices)
+    # Create boundary rectangles
+    boundary_rects = {}
+    num_boundaries = len(network_boundaries)
+    boundary_width = 1.0 / (num_boundaries + 1)
+    for i, boundary in enumerate(network_boundaries):
+        x_start = i * boundary_width
+        rect = patches.Rectangle((x_start, 0.1), boundary_width, 0.8, fill=False, linestyle='--', edgecolor='r')
+        ax.add_patch(rect)
+        ax.text(x_start + boundary_width/2, 0.95, boundary['name'], ha='center', va='top', fontsize=12, color='r')
+        boundary_rects[boundary['name']] = (x_start, 0.1, boundary_width, 0.8)
+
+    # Add nodes (devices) and position them within boundaries
     for device in network_devices:
-        G.add_node(device['name'], device_type=device['type'])
+        if device['type'] in ['Firewall', 'Router']:
+            # Place firewalls and routers on the boundary
+            boundary_rect = boundary_rects.get(device['boundary'])
+            if boundary_rect:
+                x = boundary_rect[0]
+                y = 0.5  # Middle of the boundary
+            else:
+                x, y = nx.spring_layout(G, k=0.5, iterations=50)[device['name']]
+        else:
+            # Place other devices inside the boundary
+            boundary_rect = boundary_rects.get(device['boundary'])
+            if boundary_rect:
+                x = boundary_rect[0] + boundary_rect[2] * (0.25 + 0.5 * nx.spring_layout(G, k=0.5, iterations=50)[device['name']][0])
+                y = boundary_rect[1] + boundary_rect[3] * (0.25 + 0.5 * nx.spring_layout(G, k=0.5, iterations=50)[device['name']][1])
+            else:
+                x, y = nx.spring_layout(G, k=0.5, iterations=50)[device['name']]
+        
+        G.add_node(device['name'], pos=(x, y), device_type=device['type'])
 
     # Add edges (connections)
     for conn in network_connections:
         G.add_edge(conn['from'], conn['to'], port=conn['port'], protocol=conn['protocol'])
 
-    # Create a layout for our nodes 
-    pos = nx.spring_layout(G)
-
-    fig, ax = plt.subplots(figsize=(15, 10))
+    # Get positions of nodes
+    pos = nx.get_node_attributes(G, 'pos')
 
     # Draw the graph
-    nx.draw(G, pos, with_labels=False, node_color='lightblue', node_size=3000)
+    nx.draw(G, pos, ax=ax, with_labels=False, node_color='lightblue', node_size=3000)
 
     # Add node labels with icons
     for node, (x, y) in pos.items():
         device_type = G.nodes[node]['device_type']
         icon = DEVICE_ICONS.get(device_type, "❓")
-        plt.text(x, y, f"{icon} {node}", fontsize=8, ha='center', va='center')
+        ax.text(x, y, f"{icon} {node}", fontsize=8, ha='center', va='center')
 
     # Add edge labels
     edge_labels = nx.get_edge_attributes(G, 'port')
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
-
-    # Draw boundaries
-    num_boundaries = len(network_boundaries)
-    boundary_width = 1.0 / (num_boundaries + 1)
-    for i, boundary in enumerate(network_boundaries):
-        x_start = (i + 1) * boundary_width
-        plt.axvline(x=x_start, ymin=0.05, ymax=0.95, color='r', linestyle='--')
-        plt.text(x_start, 0.98, boundary['name'], fontsize=12, color='r', ha='center', va='top', rotation=90)
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax)
 
     plt.title("Infrastructure Diagram", fontsize=16)
-    plt.axis('off')
+    ax.set_xlim(-0.05, 1.05)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
     return fig
 
 def move_item(list_name, index, direction):
