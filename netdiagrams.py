@@ -13,6 +13,15 @@ if 'network_connections' not in st.session_state:
 if 'network_boundaries' not in st.session_state:
     st.session_state.network_boundaries = []
 
+# Define device icons
+DEVICE_ICONS = {
+    "VM": "💻",
+    "Server": "🖥️",
+    "Workstation": "🖱️",
+    "Network Device": "🌐",
+    "Cloud Service": "☁️"
+}
+
 def create_network_diagram(network_devices, network_connections, network_boundaries):
     G = nx.Graph()
 
@@ -30,7 +39,13 @@ def create_network_diagram(network_devices, network_connections, network_boundar
     fig, ax = plt.subplots(figsize=(15, 10))
 
     # Draw the graph
-    nx.draw(G, pos, with_labels=True, node_color='lightblue', node_size=3000, font_size=8, font_weight='bold')
+    nx.draw(G, pos, with_labels=False, node_color='lightblue', node_size=3000)
+
+    # Add node labels with icons
+    for node, (x, y) in pos.items():
+        device_type = G.nodes[node]['device_type']
+        icon = DEVICE_ICONS.get(device_type, "❓")
+        plt.text(x, y, f"{icon} {node}", fontsize=8, ha='center', va='center')
 
     # Add edge labels
     edge_labels = nx.get_edge_attributes(G, 'port')
@@ -86,7 +101,7 @@ with col1:
 with col2:
     st.subheader("2. Add Device")
     with st.form(key='add_device_form'):
-        device_type = st.selectbox("Device Type", ["VM", "Server", "Workstation", "Network Device", "Cloud Service"])
+        device_type = st.selectbox("Device Type", list(DEVICE_ICONS.keys()))
         device_name = st.text_input("Device Name")
         boundary = st.selectbox("Boundary", [""] + [b['name'] for b in st.session_state.network_boundaries])
         if st.form_submit_button("Add Device"):
@@ -124,7 +139,7 @@ for item_type, items in [
             if item_type == "network_boundaries":
                 st.text(f"{item['name']}")
             elif item_type == "network_devices":
-                st.text(f"{item['type']} - {item['name']}")
+                st.text(f"{DEVICE_ICONS[item['type']]} {item['type']} - {item['name']}")
             else:
                 st.text(f"{item['from']} to {item['to']}")
         with col2:
