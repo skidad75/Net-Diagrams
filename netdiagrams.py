@@ -20,7 +20,7 @@ DEVICE_MARKERS = {
     "Server": "s",
     "Workstation": "^",
     "Network Device": "D",
-    "Cloud Service": "cloud",
+    "Cloud Service": "*",  # Changed from 'cloud' to '*'
     "Firewall": "h",
     "Router": "d"
 }
