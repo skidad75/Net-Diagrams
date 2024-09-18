@@ -14,15 +14,15 @@ if 'network_connections' not in st.session_state:
 if 'network_boundaries' not in st.session_state:
     st.session_state.network_boundaries = []
 
-# Define device icons
-DEVICE_ICONS = {
-    "VM": "💻",
-    "Server": "🖥️",
-    "Workstation": "🖱️",
-    "Network Device": "🌐",
-    "Cloud Service": "☁️",
-    "Firewall": "🛡️",
-    "Router": "📡"
+# Define device types and corresponding markers
+DEVICE_MARKERS = {
+    "VM": "o",
+    "Server": "s",
+    "Workstation": "^",
+    "Network Device": "D",
+    "Cloud Service": "cloud",
+    "Firewall": "h",
+    "Router": "d"
 }
 
 def create_network_diagram(network_devices, network_connections, network_boundaries):
@@ -73,23 +73,33 @@ def create_network_diagram(network_devices, network_connections, network_boundar
     for conn in network_connections:
         G.add_edge(conn['from'], conn['to'], port=conn['port'], protocol=conn['protocol'])
 
-    # Draw the graph
-    nx.draw(G, pos, ax=ax, with_labels=False, node_color='lightblue', node_size=3000)
+    # Draw the graph with different markers for each device type
+    for device_type in DEVICE_MARKERS:
+        node_list = [node for node in G.nodes() if G.nodes[node]['device_type'] == device_type]
+        nx.draw_networkx_nodes(G, pos, nodelist=node_list, node_color='lightblue', 
+                               node_size=3000, node_shape=DEVICE_MARKERS[device_type], ax=ax)
 
-    # Add node labels with icons
-    for node, (x, y) in pos.items():
-        device_type = G.nodes[node]['device_type']
-        icon = DEVICE_ICONS.get(device_type, "❓")
-        ax.text(x, y, f"{icon} {node}", fontsize=8, ha='center', va='center')
+    # Draw edges
+    nx.draw_networkx_edges(G, pos, ax=ax)
+
+    # Add node labels
+    nx.draw_networkx_labels(G, pos, font_size=8, ax=ax)
 
     # Add edge labels
     edge_labels = nx.get_edge_attributes(G, 'port')
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax)
 
+    # Create legend
+    legend_elements = [plt.Line2D([0], [0], marker=marker, color='w', label=device_type,
+                                  markerfacecolor='lightblue', markersize=10)
+                       for device_type, marker in DEVICE_MARKERS.items()]
+    ax.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(1, 1))
+
     plt.title("Infrastructure Diagram", fontsize=16)
     ax.set_xlim(-0.05, 1.05)
     ax.set_ylim(0, 1)
     ax.axis('off')
+    plt.tight_layout()
     return fig
 
 def move_item(list_name, index, direction):
@@ -130,7 +140,7 @@ with col1:
 with col2:
     st.subheader("2. Add Device")
     with st.form(key='add_device_form'):
-        device_type = st.selectbox("Device Type", list(DEVICE_ICONS.keys()))
+        device_type = st.selectbox("Device Type", list(DEVICE_MARKERS.keys()))
         device_name = st.text_input("Device Name")
         boundary = st.selectbox("Boundary", [""] + [b['name'] for b in st.session_state.network_boundaries])
         if st.form_submit_button("Add Device"):
@@ -168,7 +178,7 @@ for item_type, items in [
             if item_type == "network_boundaries":
                 st.text(f"{item['name']}")
             elif item_type == "network_devices":
-                st.text(f"{DEVICE_ICONS[item['type']]} {item['type']} - {item['name']}")
+                st.text(f"{DEVICE_MARKERS[item['type']]} {item['type']} - {item['name']}")
             else:
                 st.text(f"{item['from']} to {item['to']}")
         with col2:
