@@ -109,106 +109,134 @@ def move_item(list_name, index, direction):
     elif direction == "down" and index < len(item_list) - 1:
         item_list[index], item_list[index+1] = item_list[index+1], item_list[index]
 
-st.set_page_config(page_title="Infrastructure Diagram Generator", layout="wide", initial_sidebar_state="auto", menu_items=None)
+def main():
+    st.set_page_config(page_title="Infrastructure Diagram Generator", layout="wide", initial_sidebar_state="auto", menu_items=None)
 
-st.markdown("""
-    <style>
-    .main { background-color: #f0f2f6; }
-    .stApp { max-width: 1200px; margin: 0 auto; }
-    .stButton>button { background-color: #0066cc; color: white; }
-    .stTextInput>div>div>input, .stSelectbox>div>div>select { background-color: white; }
-    h1, h2, h3 { color: #333; }
-    .stAlert { background-color: #e6f2ff; color: #0066cc; border: 1px solid #0066cc; border-radius: 4px; }
-    </style>
+    # Add custom CSS to style the sidebar
+    st.markdown("""
+        <style>
+        .sidebar .sidebar-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+        }
+        .sidebar-bottom {
+            margin-top: auto;
+            padding-bottom: 1rem;
+            text-align: center;
+        }
+        </style>
     """, unsafe_allow_html=True)
 
-st.title("Infrastructure Diagram Generator 📊")
+    # Main content
+    st.title("Infrastructure Diagram Generator 📊")
 
-# Reorder the columns for the forms
-col1, col2, col3 = st.columns(3)
+    # Reorder the columns for the forms
+    col1, col2, col3 = st.columns(3)
 
-# Add boundary form (now first)
-with col1:
-    st.subheader("1. Add Boundary")
-    with st.form(key='add_boundary_form'):
-        boundary_name = st.text_input("Boundary Name")
-        if st.form_submit_button("Add Boundary"):
-            st.session_state.network_boundaries.append({"name": boundary_name})
-            st.success(f"Added boundary {boundary_name}")
+    # Add boundary form (now first)
+    with col1:
+        st.subheader("1. Add Boundary")
+        with st.form(key='add_boundary_form'):
+            boundary_name = st.text_input("Boundary Name")
+            if st.form_submit_button("Add Boundary"):
+                st.session_state.network_boundaries.append({"name": boundary_name})
+                st.success(f"Added boundary {boundary_name}")
 
-# Add device form (now second)
-with col2:
-    st.subheader("2. Add Device")
-    with st.form(key='add_device_form'):
-        device_type = st.selectbox("Device Type", list(DEVICE_MARKERS.keys()))
-        device_name = st.text_input("Device Name")
-        boundary = st.selectbox("Boundary", [""] + [b['name'] for b in st.session_state.network_boundaries])
-        if st.form_submit_button("Add Device"):
-            st.session_state.network_devices.append({"type": device_type, "name": device_name, "boundary": boundary})
-            st.success(f"Added {device_type} named {device_name}")
+    # Add device form (now second)
+    with col2:
+        st.subheader("2. Add Device")
+        with st.form(key='add_device_form'):
+            device_type = st.selectbox("Device Type", list(DEVICE_MARKERS.keys()))
+            device_name = st.text_input("Device Name")
+            boundary = st.selectbox("Boundary", [""] + [b['name'] for b in st.session_state.network_boundaries])
+            if st.form_submit_button("Add Device"):
+                st.session_state.network_devices.append({"type": device_type, "name": device_name, "boundary": boundary})
+                st.success(f"Added {device_type} named {device_name}")
 
-# Add connection form (now third)
-with col3:
-    st.subheader("3. Add Connection")
-    with st.form(key='add_connection_form'):
-        from_device = st.selectbox("From Device", [d['name'] for d in st.session_state.network_devices])
-        to_device = st.selectbox("To Device", [d['name'] for d in st.session_state.network_devices])
-        port = st.text_input("Port")
-        protocol = st.selectbox("Protocol", ["TCP", "UDP", "HTTPS", "Custom"])
-        if st.form_submit_button("Add Connection"):
-            st.session_state.network_connections.append({
-                "from": from_device,
-                "to": to_device,
-                "port": port,
-                "protocol": protocol
-            })
-            st.success(f"Added connection from {from_device} to {to_device}")
+    # Add connection form (now third)
+    with col3:
+        st.subheader("3. Add Connection")
+        with st.form(key='add_connection_form'):
+            from_device = st.selectbox("From Device", [d['name'] for d in st.session_state.network_devices])
+            to_device = st.selectbox("To Device", [d['name'] for d in st.session_state.network_devices])
+            port = st.text_input("Port")
+            protocol = st.selectbox("Protocol", ["TCP", "UDP", "HTTPS", "Custom"])
+            if st.form_submit_button("Add Connection"):
+                st.session_state.network_connections.append({
+                    "from": from_device,
+                    "to": to_device,
+                    "port": port,
+                    "protocol": protocol
+                })
+                st.success(f"Added connection from {from_device} to {to_device}")
 
-# Display current boundaries, devices, and connections with reordering functionality
-st.subheader("Current Infrastructure Items")
-for item_type, items in [
-    ("network_boundaries", st.session_state.network_boundaries),
-    ("network_devices", st.session_state.network_devices),
-    ("network_connections", st.session_state.network_connections)
-]:
-    st.write(f"**{item_type.replace('_', ' ').title()}:**")
-    for i, item in enumerate(items):
-        col1, col2, col3 = st.columns([3, 1, 1])
-        with col1:
-            if item_type == "network_boundaries":
-                st.text(f"{item['name']}")
-            elif item_type == "network_devices":
-                st.text(f"{DEVICE_MARKERS[item['type']]} {item['type']} - {item['name']}")
-            else:
-                st.text(f"{item['from']} to {item['to']}")
-        with col2:
-            if st.button("↑", key=f"{item_type}_up_{i}"):
-                move_item(item_type, i, "up")
-                st.experimental_rerun()
-        with col3:
-            if st.button("↓", key=f"{item_type}_down_{i}"):
-                move_item(item_type, i, "down")
-                st.experimental_rerun()
+    # Display current boundaries, devices, and connections with reordering functionality
+    st.subheader("Current Infrastructure Items")
+    for item_type, items in [
+        ("network_boundaries", st.session_state.network_boundaries),
+        ("network_devices", st.session_state.network_devices),
+        ("network_connections", st.session_state.network_connections)
+    ]:
+        st.write(f"**{item_type.replace('_', ' ').title()}:**")
+        for i, item in enumerate(items):
+            col1, col2, col3 = st.columns([3, 1, 1])
+            with col1:
+                if item_type == "network_boundaries":
+                    st.text(f"{item['name']}")
+                elif item_type == "network_devices":
+                    st.text(f"{DEVICE_MARKERS[item['type']]} {item['type']} - {item['name']}")
+                else:
+                    st.text(f"{item['from']} to {item['to']}")
+            with col2:
+                if st.button("↑", key=f"{item_type}_up_{i}"):
+                    move_item(item_type, i, "up")
+                    st.experimental_rerun()
+            with col3:
+                if st.button("↓", key=f"{item_type}_down_{i}"):
+                    move_item(item_type, i, "down")
+                    st.experimental_rerun()
 
-# Generate diagram button
-if st.button('Generate Infrastructure Diagram', key='generate_button'):
-    if st.session_state.network_devices and st.session_state.network_connections:
-        fig = create_network_diagram(st.session_state.network_devices, st.session_state.network_connections, st.session_state.network_boundaries)
-        
-        # Display the diagram
-        st.pyplot(fig)
-        
-        # Create PDF for download
-        pdf_buffer = io.BytesIO()
-        fig.savefig(pdf_buffer, format='pdf', bbox_inches='tight')
-        pdf_buffer.seek(0)
-        
-        # Add download button for PDF export
-        st.download_button(
-            label="Download Infrastructure Diagram (PDF)",
-            data=pdf_buffer,
-            file_name="infrastructure_diagram.pdf",
-            mime="application/pdf"
-        )
-    else:
-        st.warning("Please add devices and connections to generate the diagram.")
+    # Generate diagram button
+    if st.button('Generate Infrastructure Diagram', key='generate_button'):
+        if st.session_state.network_devices and st.session_state.network_connections:
+            fig = create_network_diagram(st.session_state.network_devices, st.session_state.network_connections, st.session_state.network_boundaries)
+            
+            # Display the diagram
+            st.pyplot(fig)
+            
+            # Create PDF for download
+            pdf_buffer = io.BytesIO()
+            fig.savefig(pdf_buffer, format='pdf', bbox_inches='tight')
+            pdf_buffer.seek(0)
+            
+            # Add download button for PDF export
+            st.download_button(
+                label="Download Infrastructure Diagram (PDF)",
+                data=pdf_buffer,
+                file_name="infrastructure_diagram.pdf",
+                mime="application/pdf"
+            )
+        else:
+            st.warning("Please add devices and connections to generate the diagram.")
+
+    # Sidebar content
+    st.sidebar.header("Infrastructure Diagram Generator")
+    
+    # Add "Buy Me A Coffee" link to the bottom of the sidebar
+    st.sidebar.markdown(
+        """
+        <div class="sidebar-bottom">
+        <p>If you find this tool useful and want to support its development, consider buying me a coffee!</p>
+        <a href="https://buymeacoffee.com/skidad75" target="_blank">
+        <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;">
+        </a>
+        <p>Created with ❤️ by ryan</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+if __name__ == "__main__":
+    main()
