@@ -1,9 +1,10 @@
-streamlit 
+streamlit==1.31.0
 Pillow
 openai
 llama-index
 llama-index-llms-openai
 nltk
 pypdf
-networkx
-matplotlib
+networkx==3.2.1
+matplotlib==3.8.2
+streamlit-extras==0.4.0
