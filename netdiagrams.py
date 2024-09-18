@@ -48,7 +48,14 @@ def create_network_diagram(network_devices, network_connections, network_boundar
     plt.axis('off')
     return fig
 
-st.set_page_config(page_title="Azure Infrastructure Diagram Generator", layout="wide", initial_sidebar_state="auto", menu_items=None)
+def move_item(list_name, index, direction):
+    item_list = st.session_state[list_name]
+    if direction == "up" and index > 0:
+        item_list[index], item_list[index-1] = item_list[index-1], item_list[index]
+    elif direction == "down" and index < len(item_list) - 1:
+        item_list[index], item_list[index+1] = item_list[index+1], item_list[index]
+
+st.set_page_config(page_title="Infrastructure Diagram Generator", layout="wide", initial_sidebar_state="auto", menu_items=None)
 
 st.markdown("""
     <style>
@@ -63,12 +70,21 @@ st.markdown("""
 
 st.title("Infrastructure Diagram Generator 📊")
 
-# Create three columns for the forms
+# Reorder the columns for the forms
 col1, col2, col3 = st.columns(3)
 
-# Add device form
+# Add boundary form (now first)
 with col1:
-    st.subheader("Add Device")
+    st.subheader("1. Add Boundary")
+    with st.form(key='add_boundary_form'):
+        boundary_name = st.text_input("Boundary Name")
+        if st.form_submit_button("Add Boundary"):
+            st.session_state.network_boundaries.append({"name": boundary_name})
+            st.success(f"Added boundary {boundary_name}")
+
+# Add device form (now second)
+with col2:
+    st.subheader("2. Add Device")
     with st.form(key='add_device_form'):
         device_type = st.selectbox("Device Type", ["VM", "Server", "Workstation", "Network Device", "Cloud Service"])
         device_name = st.text_input("Device Name")
@@ -77,9 +93,9 @@ with col1:
             st.session_state.network_devices.append({"type": device_type, "name": device_name, "boundary": boundary})
             st.success(f"Added {device_type} named {device_name}")
 
-# Add connection form
-with col2:
-    st.subheader("Add Connection")
+# Add connection form (now third)
+with col3:
+    st.subheader("3. Add Connection")
     with st.form(key='add_connection_form'):
         from_device = st.selectbox("From Device", [d['name'] for d in st.session_state.network_devices])
         to_device = st.selectbox("To Device", [d['name'] for d in st.session_state.network_devices])
@@ -94,32 +110,31 @@ with col2:
             })
             st.success(f"Added connection from {from_device} to {to_device}")
 
-# Add boundary form
-with col3:
-    st.subheader("Add Boundary")
-    with st.form(key='add_boundary_form'):
-        boundary_name = st.text_input("Boundary Name")
-        if st.form_submit_button("Add Boundary"):
-            st.session_state.network_boundaries.append({"name": boundary_name})
-            st.success(f"Added boundary {boundary_name}")
-
-# Display current devices, connections, and boundaries
-col4, col5, col6 = st.columns(3)
-
-with col4:
-    st.subheader("Current Devices")
-    for device in st.session_state.network_devices:
-        st.write(f"• {device['type']} - {device['name']} ({device['boundary']})")
-
-with col5:
-    st.subheader("Current Connections")
-    for conn in st.session_state.network_connections:
-        st.write(f"• {conn['from']} to {conn['to']} using port {conn['port']} over {conn['protocol']}")
-
-with col6:
-    st.subheader("Current Boundaries")
-    for boundary in st.session_state.network_boundaries:
-        st.write(f"• {boundary['name']}")
+# Display current boundaries, devices, and connections with reordering functionality
+st.subheader("Current Infrastructure Items")
+for item_type, items in [
+    ("network_boundaries", st.session_state.network_boundaries),
+    ("network_devices", st.session_state.network_devices),
+    ("network_connections", st.session_state.network_connections)
+]:
+    st.write(f"**{item_type.replace('_', ' ').title()}:**")
+    for i, item in enumerate(items):
+        col1, col2, col3 = st.columns([3, 1, 1])
+        with col1:
+            if item_type == "network_boundaries":
+                st.text(f"{item['name']}")
+            elif item_type == "network_devices":
+                st.text(f"{item['type']} - {item['name']}")
+            else:
+                st.text(f"{item['from']} to {item['to']}")
+        with col2:
+            if st.button("↑", key=f"{item_type}_up_{i}"):
+                move_item(item_type, i, "up")
+                st.experimental_rerun()
+        with col3:
+            if st.button("↓", key=f"{item_type}_down_{i}"):
+                move_item(item_type, i, "down")
+                st.experimental_rerun()
 
 # Generate diagram button
 if st.button('Generate Infrastructure Diagram', key='generate_button'):
