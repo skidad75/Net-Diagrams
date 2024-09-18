@@ -61,7 +61,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("Infrastructure Diagram Generator 🖧")
+st.title("Infrastructure Diagram Generator 📊")
 
 # Create three columns for the forms
 col1, col2, col3 = st.columns(3)
