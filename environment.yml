@@ -1,14 +1,12 @@
-name: netdiagrams
+name: NetDiagram
 channels:
-- anaconda
-- conda-forge
-- defaults
+  - conda-forge
+  - defaults
 dependencies:
-  - python
+  - python=3.12
+  - streamlit=1.31.0
+  - networkx=3.2.1
+  - matplotlib=3.8.2
+  - pip
   - pip:
-    - streamlit
-    - openai
-    - llama-index
-    - llama-index-llms-openai
-    - nltk
-    - pypdf
+    - streamlit-extras==0.4.0
