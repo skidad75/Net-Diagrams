@@ -232,7 +232,7 @@ def main():
         <a href="https://buymeacoffee.com/skidad75" target="_blank">
         <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;">
         </a>
-        <p>Created with ❤️ by ryan</p>
+        <p>Created with ❤️ by <a href="https://github.com/skidad75" target="_blank">Ryan</a></p>
         </div>
         """,
         unsafe_allow_html=True
