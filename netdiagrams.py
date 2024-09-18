@@ -40,7 +40,15 @@ def create_network_diagram(network_devices, network_connections, network_boundar
         ax.text(x_start + boundary_width/2, 0.95, boundary['name'], ha='center', va='top', fontsize=12, color='r')
         boundary_rects[boundary['name']] = (x_start, 0.1, boundary_width, 0.8)
 
-    # Add nodes (devices) and position them within boundaries
+    # Add all nodes to the graph first
+    for device in network_devices:
+        G.add_node(device['name'], device_type=device['type'], boundary=device['boundary'])
+
+    # Create a spring layout for all nodes
+    initial_pos = nx.spring_layout(G, k=0.5, iterations=50)
+
+    # Now position the nodes
+    pos = {}
     for device in network_devices:
         if device['type'] in ['Firewall', 'Router']:
             # Place firewalls and routers on the boundary
@@ -49,24 +57,21 @@ def create_network_diagram(network_devices, network_connections, network_boundar
                 x = boundary_rect[0]
                 y = 0.5  # Middle of the boundary
             else:
-                x, y = nx.spring_layout(G, k=0.5, iterations=50)[device['name']]
+                x, y = initial_pos[device['name']]
         else:
             # Place other devices inside the boundary
             boundary_rect = boundary_rects.get(device['boundary'])
             if boundary_rect:
-                x = boundary_rect[0] + boundary_rect[2] * (0.25 + 0.5 * nx.spring_layout(G, k=0.5, iterations=50)[device['name']][0])
-                y = boundary_rect[1] + boundary_rect[3] * (0.25 + 0.5 * nx.spring_layout(G, k=0.5, iterations=50)[device['name']][1])
+                x = boundary_rect[0] + boundary_rect[2] * (0.25 + 0.5 * initial_pos[device['name']][0])
+                y = boundary_rect[1] + boundary_rect[3] * (0.25 + 0.5 * initial_pos[device['name']][1])
             else:
-                x, y = nx.spring_layout(G, k=0.5, iterations=50)[device['name']]
+                x, y = initial_pos[device['name']]
         
-        G.add_node(device['name'], pos=(x, y), device_type=device['type'])
+        pos[device['name']] = (x, y)
 
     # Add edges (connections)
     for conn in network_connections:
         G.add_edge(conn['from'], conn['to'], port=conn['port'], protocol=conn['protocol'])
-
-    # Get positions of nodes
-    pos = nx.get_node_attributes(G, 'pos')
 
     # Draw the graph
     nx.draw(G, pos, ax=ax, with_labels=False, node_color='lightblue', node_size=3000)
