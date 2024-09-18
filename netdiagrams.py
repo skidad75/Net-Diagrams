@@ -37,15 +37,15 @@ def create_network_diagram(network_devices, network_connections, network_boundar
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
 
     # Draw boundaries
-    for boundary in network_boundaries:
-        devices_in_boundary = [d['name'] for d in network_devices if d['boundary'] == boundary['name']]
-        if devices_in_boundary:
-            boundary_pos = [pos[device] for device in devices_in_boundary]
-            x_coords, y_coords = zip(*boundary_pos)
-            ax.add_patch(plt.Polygon(list(zip(x_coords, y_coords)), closed=True, fill=False, edgecolor='r', linestyle='--'))
-            plt.text(sum(x_coords)/len(x_coords), max(y_coords), boundary['name'], fontsize=12, color='r')
+    num_boundaries = len(network_boundaries)
+    boundary_width = 1.0 / (num_boundaries + 1)
+    for i, boundary in enumerate(network_boundaries):
+        x_start = (i + 1) * boundary_width
+        plt.axvline(x=x_start, ymin=0.05, ymax=0.95, color='r', linestyle='--')
+        plt.text(x_start, 0.98, boundary['name'], fontsize=12, color='r', ha='center', va='top', rotation=90)
 
-    plt.title("Azure Infrastructure Diagram", fontsize=16)
+    plt.title("Infrastructure Diagram", fontsize=16)
+    plt.axis('off')
     return fig
 
 st.set_page_config(page_title="Azure Infrastructure Diagram Generator", layout="wide", initial_sidebar_state="auto", menu_items=None)
@@ -61,7 +61,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("Azure Infrastructure Diagram Generator 🖧")
+st.title("Infrastructure Diagram Generator 🖧")
 
 # Create three columns for the forms
 col1, col2, col3 = st.columns(3)
@@ -122,7 +122,7 @@ with col6:
         st.write(f"• {boundary['name']}")
 
 # Generate diagram button
-if st.button('Generate Azure Infrastructure Diagram', key='generate_button'):
+if st.button('Generate Infrastructure Diagram', key='generate_button'):
     if st.session_state.network_devices and st.session_state.network_connections:
         fig = create_network_diagram(st.session_state.network_devices, st.session_state.network_connections, st.session_state.network_boundaries)
         
@@ -136,9 +136,9 @@ if st.button('Generate Azure Infrastructure Diagram', key='generate_button'):
         
         # Add download button for PDF export
         st.download_button(
-            label="Download Azure Infrastructure Diagram (PDF)",
+            label="Download Infrastructure Diagram (PDF)",
             data=pdf_buffer,
-            file_name="azure_infrastructure_diagram.pdf",
+            file_name="infrastructure_diagram.pdf",
             mime="application/pdf"
         )
     else:
