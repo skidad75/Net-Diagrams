@@ -1,0 +1,1 @@
+conda config --set auto_update_conda False
